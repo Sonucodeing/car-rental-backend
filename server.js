@@ -15,7 +15,12 @@ const app = express()
 await connectDB()
 
 //middleware 
-app.use(cors());
+app.use(cors({
+   origin: [
+    'http://localhost:5173',        // dev frontend
+    'https://drivezy-car-rental.netlify.app'  // agar kabhi deploy karo
+  ],
+}));
 app.use(express.json());
 
 app.get('/',(req,res)=> res.send("Server is runing"))
