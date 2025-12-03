@@ -3,11 +3,25 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Car from "../model/car.js";
 
-// Generate JWT Token
-const generateToken = (userId) =>{
-    const payload = userId;
-    return jwt.sign(payload, process.env.JWT_SECRET)
-}
+
+
+export const generateToken = (user) => {
+  const payload = {
+    id: user._id,
+    role: user.role
+  };
+
+  console.log("📌 Token Payload Being Signed:", payload);
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+  console.log("✅ Generated Token:", token);
+
+  return token;
+};
+
+
+
 
 //Register User
 
@@ -38,31 +52,41 @@ export const registerUser = async  (req,res) => {
 }
 
 //Login User
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-export const loginUser = async(req,res)=>{
-try{
-    const {email, password} = req.body
-    console.log("LOGIN REQ BODY:", req.body);
+    const user = await User.findOne({ email });
 
-    const user = await User.findOne({email})
-    console.log("FOUND USER:", user);
-    if(!user){
-        return res.json({success: false, message: 'User not found'})
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password)
-    if(!isMatch){
-        return res.json({success: false, message: 'Invalid Credentials'})
-    }
-     const token = generateToken(user._id.toString())
-        res.json({success: true, token})
+    const isMatch = await bcrypt.compare(password, user.password);
 
-}catch(error){
-     console.log(error.message);
-        res.json({success: false, message: error.message})
-        
-}
-}
+    if (!isMatch) {
+      return res.json({ success: false, message: "Incorrect password" });
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
+
+    return res.json({
+      success: true,
+      message: "Login success",
+      token,
+      role: user.role,      // 👈 ADD THIS LINE
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role     // 👈 ADD THIS ALSO
+      }
+    });
+
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 
 // Get User data using Token (JWT)
 

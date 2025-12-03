@@ -20,43 +20,56 @@ export const changeRoleToOwner = async (req,res)=>{
 
 // API to List Car
 
-export const addCar = async(req,res)=>{
-    try{
-        const {_id} = req.user;
+
+
+
+export const addCar = async (req, res) => {
+    try {
+        const { _id } = req.user;
+
+        // Validate
+        if (!req.body.carData) {
+            return res.status(400).json({ success: false, message: "Car data is required" });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "Car image required" });
+        }
+
         let car = JSON.parse(req.body.carData);
         const imageFile = req.file;
 
-        // Upload image to Imagekit
+        // Read uploaded image
+        const fileBuffer = fs.readFileSync(imageFile.path);
 
-        const fileBuffer = fs.readFileSync(imageFile.path)
-        const response = await imagekit.upload({
+        // Upload to ImageKit
+        const uploadResponse = await imagekit.upload({
             file: fileBuffer,
             fileName: imageFile.originalname,
-            folder: '/cars'
-        })
+            folder: "/cars"
+        });
 
-        // Optimization through imagekit URL transformation
-
-        var optimizationUrl = imagekit.url({
-            path: response.filePath,
+        // Optimize URL
+        const optimizedUrl = imagekit.url({
+            path: uploadResponse.filePath,
             transformation: [
-                {width: '1280'},  //Width resizing
-                {quality: 'auto'},  // Auto Compression
-                {format: 'webp'}  //Convert to morden format
+                { width: "1280" },
+                { quality: "auto" },
+                { format: "webp" }
             ]
         });
 
-        const image = optimizationUrl;
-        await Car.create({...car, owner: _id, image})
+        // Save car
+        await Car.create({ ...car, owner: _id, image: optimizedUrl });
 
-        res.json({success: true, message: "Car Added"})
+        res.json({ success: true, message: "Car Added" });
 
-    }catch(error){
-        console.log(error.message);
-        res.json({success: false, message: error.message})
-        
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-}
+};
+
 
 
 // APi to list owner cars
