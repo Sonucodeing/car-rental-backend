@@ -1,9 +1,10 @@
 
 // controllers/userController.js
 import User from "../model/User.js"
-import Car from '../model/Car.js';
+import Car from '../model/car.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { sendMail } from "../configs/nodemailer.js";
 
 // Register user
 export const registerUser = async (req, res) => {
@@ -11,6 +12,9 @@ export const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword });
+    sendMail(email,name);
+
+
     res.status(201).json({ success: true, user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
