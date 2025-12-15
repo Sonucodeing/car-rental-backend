@@ -18,7 +18,7 @@ await connectDB()
 app.use(cors({
    origin: [
     'http://localhost:5173',        // dev frontend
-    'https://drivezy-car-rental.netlify.app'  // agar kabhi deploy karo
+    'https://car-rental-frontend-dun-seven.vercel.app'  // agar kabhi deploy karo
   ],
 }));
 app.use(express.json());
