@@ -1,7 +1,7 @@
 
 // controllers/userController.js
 import User from "../model/User.js"
-import Car from '../model/Car.js';
+import Car from '../model/car.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendMail } from "../configs/nodemailer.js";
