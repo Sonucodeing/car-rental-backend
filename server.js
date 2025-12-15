@@ -15,13 +15,17 @@ const app = express()
 await connectDB()
 
 //middleware 
-app.use(cors({
-  origin: [
-    "https://car-rentel-frontend-test.vercel.app"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,   // 👈 allows ANY localhost port
+    credentials: true
+  })
+);
+
+app.options(/.*/, cors());
+
+// must be present
+// app.options("*", cors());
 app.use(express.json());
 
 app.get('/',(req,res)=> res.send("Server is runing"))

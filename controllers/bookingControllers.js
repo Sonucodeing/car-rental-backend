@@ -2,6 +2,7 @@
 
 // Function to check  Availability of car for a given Date
 
+import { sendMail } from "../configs/nodemailer.js";
 import Booking from "../model/Booking.js"
 import Car from "../model/car.js";
 
@@ -105,24 +106,45 @@ export const getUserBooking = async (req,res)=>{
 }
 
     // API to change booking status
+export const changeBookingStatus = async(req,res) =>{
+    try{
+        const {_id} = req.user;   // owner/admin ka id
+        const {bookingId, status} = req.body;
 
-    export const changeBookingStatus = async(req,res) =>{
-        try{
-            const {_id} = req.user;
-            const {bookingId, status} = req.body;
+        const booking = await Booking.findById(bookingId).populate("user", "name email");
 
-            const booking = await Booking.findById(bookingId)
-
-            if(booking.owner.toString() !== _id.toString()){
-                return res.json({success: false, message: "Unauthorized"})
-            }
-            booking.status = status;
-            await booking.save();
-
-            res.json({success: true, message: "Status Updated"})
-        }catch(error){
-            console.log(error.message);
-            res.json({success: false, message: error.message})
-            
+        if(booking.owner.toString() !== _id.toString()){
+            return res.json({success: false, message: "Unauthorized"});
         }
+
+        booking.status = status;
+        await booking.save();
+
+        const userEmail = booking.user.email;
+        const userName = booking.user.name;
+
+        // Email to the booking user
+        if(status === "cancelled"){
+            await sendMail(
+                userEmail,
+                userName,
+                "Booking Cancelled 🚫",
+                `Hello ${userName},\n\nYour booking ${bookingId} has been cancelled.\n\nDriveEasy Car Rentals Team`
+            );
+            return res.json({success: true, message: "Booking Cancelled"});
+        } else if(status === "confirmed"){
+            await sendMail(
+                userEmail,
+                userName,
+                "Booking Confirmed ✅",
+                `Hello ${userName},\n\nYour booking ${bookingId} has been confirmed.\n\nDriveEasy Car Rentals Team`
+            );
+            return res.json({success: true, message: "Booking Confirmed"});
+        }
+
+        res.json({success: true, message: "Status Updated"});
+    }catch(error){
+        console.log(error.message);
+        res.json({success: false, message: error.message});
     }
+}

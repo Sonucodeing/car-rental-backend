@@ -1,33 +1,21 @@
 import nodemailer from "nodemailer";
 
-export const sendMail = async (email,name) => {
+export const sendMail = async (email, name, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,      // Gmail
-        pass: process.env.EMAIL_PASS,        // App Password
+        user: process.env.EMAIL_USER, // Gmail
+        pass: process.env.EMAIL_PASS, // App Password
       },
     });
 
-const info = await transporter.sendMail({
-  from: '"Car Rental Team" <sc763894@gmail.com>',
-  to: email,
-  subject: "Welcome to DriveEasy Car Rentals 🚗",
-  text: `Hello ${name},
-
-Welcome to DriveEasy Car Rentals!
-
-We’re excited to have you with us. Your account has been successfully created, and you can now book cars easily, safely, and at affordable prices.
-
-If you have any questions or need assistance, feel free to contact our support team.
-
-Happy Driving!
-DriveEasy Car Rentals Team
-`
-
-});
-
+    const info = await transporter.sendMail({
+      from: '"DriveEasy Car Rentals" <sc763894@gmail.com>',
+      to: email,
+      subject: subject, // dynamic subject
+      text: text,       // dynamic text
+    });
 
     console.log("Message sent:", info.messageId);
   } catch (error) {
