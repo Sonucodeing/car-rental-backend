@@ -3,12 +3,17 @@ import jwt from "jsonwebtoken";
 
 export const protect = async (req, res, next) => {
   try {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
 
     console.log("🟦 Incoming Token:", token);
 
     if (!token) {
       return res.status(401).json({ success: false, message: "No token provided" });
+    }
+
+    // Remove Bearer prefix if present
+    if (token.startsWith('Bearer ')) {
+      token = token.slice(7);
     }
 
     // VERIFY TOKEN

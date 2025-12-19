@@ -17,7 +17,7 @@ await connectDB()
 //middleware 
 app.use(
   cors({
-    origin: true,   // 👈 allows ANY localhost port
+    origin: "http://localhost:5173",
     credentials: true
   })
 );

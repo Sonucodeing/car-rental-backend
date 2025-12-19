@@ -10,6 +10,7 @@ export const sendMail = async (email, name, subject, text) => {
       },
     });
 
+      
     const info = await transporter.sendMail({
       from: '"DriveEasy Car Rentals" <sc763894@gmail.com>',
       to: email,

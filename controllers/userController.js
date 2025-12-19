@@ -12,8 +12,20 @@ export const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword });
-    sendMail(email,name);
-
+   
+       if(user){
+            await sendMail(
+                email,
+                name,
+                "Welcome To Car Rental",
+                `Hello ${name},
+Welcome to DriveEasy Car Rentals! 🚗✨
+We’re excited to have you with us. Your account has been successfully created, and you can now explore our wide range of cars and enjoy a smooth rental experience.
+If you need any help, feel free to contact our support team anytime.
+Happy Driving!  
+DriveEasy Car Rentals Team`
+            );
+          }
 
     res.status(201).json({ success: true, user });
   } catch (error) {
