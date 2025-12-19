@@ -17,7 +17,7 @@ await connectDB()
 //middleware 
 app.use(
   cors({
-    origin: "https://car-rentel-frontend.vercel.app/",
+    origin: "https://car-rentel-frontend.vercel.app",
     credentials: true
   })
 );
